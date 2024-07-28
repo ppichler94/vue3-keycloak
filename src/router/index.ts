@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import SigninCallback from '@/views/SigninCallback.vue'
 import SignoutCallback from '@/views/SignoutCallback.vue'
+import ProductsView from '@/views/ProductsView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -29,6 +30,11 @@ const router = createRouter({
       name: 'signout-callback',
       component: SignoutCallback
     },
+    {
+      path: '/products',
+      name: 'products',
+      component: ProductsView
+    }
   ]
 })
 
