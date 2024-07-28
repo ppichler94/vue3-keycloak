@@ -20,37 +20,33 @@ export const useUserManager = defineStore('usermanager', () => {
   let interceptor: number | undefined = undefined
 
   usermanager.events.addUserLoaded((u) => {
-
-    roles.value = (u.profile['realm_access'] as {roles: string[]}).roles
-    authenticated.value = u && !u.expired
-    if (interceptor !== undefined) {
-      axios.interceptors.request.eject(interceptor)
-    }
-    interceptor = axios.interceptors.request.use((config) => {
-      config.headers.set('Authorization', `Bearer ${u.access_token}`)
-      return config
-    })
-    user.value = u
-    void router.push(router.currentRoute.value)
+    userChanged(u)
   })
 
   usermanager.events.addAccessTokenExpired(() => {
-    user.value = undefined
-    roles.value = []
-    authenticated.value = false
-    console.log(`authentication expired`)
+    userChanged()
   })
 
   usermanager.events.addUserUnloaded(() => {
-    authenticated.value = false
-    user.value = undefined
-    roles.value = []
+    userChanged()
+  })
+
+  function userChanged(u?: User) {
+    roles.value = (u?.profile['realm_access'] as {roles: string[]} | undefined)?.roles ?? []
+    authenticated.value = u !== undefined && !u.expired
     if (interceptor !== undefined) {
       axios.interceptors.request.eject(interceptor)
       interceptor = undefined
     }
-    void router.push({ name: 'home'})
-  })
+    if (u !== undefined) {
+      interceptor = axios.interceptors.request.use((config) => {
+        config.headers.set('Authorization', `Bearer ${u.access_token}`)
+        return config
+      })
+    }
+    user.value = u
+    void router.push(router.currentRoute.value)
+  }
 
   return {
     usermanager,
