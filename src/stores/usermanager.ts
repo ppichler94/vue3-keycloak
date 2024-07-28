@@ -20,7 +20,7 @@ export const useUserManager = defineStore('usermanager', () => {
   let interceptor: number | undefined = undefined
 
   usermanager.events.addUserLoaded((u) => {
-    user.value = u
+
     roles.value = (u.profile['realm_access'] as {roles: string[]}).roles
     authenticated.value = u && !u.expired
     if (interceptor !== undefined) {
@@ -30,7 +30,8 @@ export const useUserManager = defineStore('usermanager', () => {
       config.headers.set('Authorization', `Bearer ${u.access_token}`)
       return config
     })
-    void router.push({ name: 'home'})
+    user.value = u
+    void router.push(router.currentRoute.value)
   })
 
   usermanager.events.addAccessTokenExpired(() => {

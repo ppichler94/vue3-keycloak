@@ -8,13 +8,24 @@ export function useProducts() {
     return result.data
   }
 
+  async function addProduct(product: NewProduct) {
+    await axios.post(`${backendUrl}/products`, product)
+  }
+
   return {
-    getProducts
+    getProducts,
+    addProduct
   }
 }
 
 export type Product = {
   id: number,
+  name: string,
+  description: string,
+  price: number,
+}
+
+export type NewProduct = {
   name: string,
   description: string,
   price: number,

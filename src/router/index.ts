@@ -7,6 +7,7 @@ import OrdersView from '@/orders/OrdersView.vue'
 import CartView from '@/cart/CartView.vue'
 import { useUserManager } from '@/stores/usermanager'
 import CheckoutView from '@/cart/CheckoutView.vue'
+import NewProductView from '@/products/NewProductView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -45,6 +46,11 @@ const router = createRouter({
       path: '/checkout',
       name: 'checkout',
       component: CheckoutView,
+    },
+    {
+      path: '/new-product',
+      name: 'new-product',
+      component: NewProductView
     }
   ]
 })

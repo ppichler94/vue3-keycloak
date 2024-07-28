@@ -30,7 +30,7 @@ class ProductController(private val repository: ProductRepository) {
     }
 
     private fun NewProductDto.toEntity(): Product {
-        return Product(null, name!!, price!!, true)
+        return Product(null, name, (price * 100.0).toInt(), true)
     }
 }
 
@@ -59,5 +59,5 @@ data class NewProductDto(
     val name: String,
     val description: String,
     @field:Min(1)
-    val price: Int,
+    val price: Double,
 )
