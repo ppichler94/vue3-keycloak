@@ -1,5 +1,4 @@
 <script setup lang="ts">
-
 import { type CartItem, useCart } from '@/cart/useCart'
 import { ref } from 'vue'
 import router from '@/router'
@@ -10,12 +9,12 @@ const cart = ref<CartItem[]>([])
 
 getCart().then((c) => cart.value = c)
 
-function update() {
-
+function abort() {
+  void router.push({ name: 'cart'})
 }
 
-async function checkout() {
-  void router.push({ name: 'checkout'})
+function confirm() {
+  void router.push({ name: 'products'})
 }
 </script>
 
@@ -27,10 +26,13 @@ async function checkout() {
   </el-table>
 
   <div class="pt-4">
-    <el-button @click="update()" type="primary">Update Cart</el-button>
-    <el-button @click="checkout()" type="success">Checkout</el-button>
+    <span>Total cost: {{cart.reduce((acc, item) => acc + item.productPrice * item.amount, 0)}}</span>
   </div>
 
+  <div class="pt-4">
+    <el-button @click="abort()" type="danger">Abort</el-button>
+    <el-button @click="confirm()" type="success">Place Order</el-button>
+  </div>
 </template>
 
 <style scoped>

@@ -21,7 +21,7 @@ export const useUserManager = defineStore('usermanager', () => {
 
   usermanager.events.addUserLoaded((u) => {
     user.value = u
-    roles.value = u.profile['realm_access'].roles as string[]
+    roles.value = (u.profile['realm_access'] as {roles: string[]}).roles
     authenticated.value = u && !u.expired
     if (interceptor !== undefined) {
       axios.interceptors.request.eject(interceptor)

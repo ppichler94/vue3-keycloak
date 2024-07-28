@@ -19,10 +19,9 @@ class CartController(
     private val productRepository: ProductRepository,
 ) {
     @GetMapping("cart")
-    fun cart(): CartDto {
-        val user = SecurityContextHolder.getContext().authentication.principal as OidcUser
-        val userId = user.userInfo.preferredUsername
-        val cart = basketRepository.getCartByUserId(userId)
+    fun cart(): Iterable<CartItemDto> {
+        val user = UserManager.getUsername()
+        val cart = basketRepository.getCartByUserId(user)
         return cart.toDto()
     }
 
@@ -39,7 +38,7 @@ class CartController(
     }
 
     @PostMapping("/cart")
-    fun updateCart(cart: CartDto): CartDto {
+    fun updateCart(cart: CartDto): Iterable<CartItemDto> {
         val user = SecurityContextHolder.getContext().authentication.principal as OidcUser
         val userId = user.userInfo.preferredUsername
         val newCart = Cart(
@@ -73,13 +72,13 @@ class CartController(
         return OrderDto(order.id!!, order.date, order.customerId, order.orderLines)
     }
 
-    private fun Cart.toDto(): CartDto {
+    private fun Cart.toDto(): Iterable<CartItemDto> {
         val items = cartItems.map {
             val product = productRepository.findById(it.productId)
             require(product.isPresent) { "Product not found" }
-            CartItemDto(it.productId, it.amount, product.get().name, product.get().price)
+            CartItemDto(it.productId, it.amount, product.get().name, product.get().price / 100.0)
         }
-        return CartDto(items.toMutableList())
+        return items
     }
 }
 
@@ -122,5 +121,5 @@ data class CartItemDto(
     var productId: Int = 0,
     var amount: Int = 0,
     var productName: String = "",
-    var productPrice: Int = 0,
+    var productPrice: Double = 0.0,
 )
