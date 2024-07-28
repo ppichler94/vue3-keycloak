@@ -1,17 +1,19 @@
 package io.github.ppichler94.vuekeycloak.cart
 
+import io.github.ppichler94.vuekeycloak.UserManager
 import io.github.ppichler94.vuekeycloak.order.Order
 import io.github.ppichler94.vuekeycloak.order.OrderDto
 import io.github.ppichler94.vuekeycloak.order.OrderLine
 import io.github.ppichler94.vuekeycloak.product.ProductRepository
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.oauth2.core.oidc.user.OidcUser
-import org.springframework.stereotype.Controller
 import org.springframework.stereotype.Repository
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RestController
 
-@Controller
+@RestController
 class CartController(
     private val basketRepository: CartRepository,
     private val productRepository: ProductRepository,
@@ -24,20 +26,19 @@ class CartController(
         return cart.toDto()
     }
 
-    @PostMapping(value=["cart"], params=["add"])
-    fun addToCart(add: Int) {
-        val user = SecurityContextHolder.getContext().authentication.principal as OidcUser
-        val userId = user.userInfo.preferredUsername
-        val basket = basketRepository.getCartByUserId(userId)
-        val item = basket.cartItems.find { it.productId == add }
+    @PostMapping("/cart/add/{productId}")
+    fun addToCart(@PathVariable productId: Int) {
+        val user = UserManager.getUsername()
+        val basket = basketRepository.getCartByUserId(user)
+        val item = basket.cartItems.find { it.productId == productId }
         if (item != null) {
             item.amount++
         } else {
-            basket.cartItems.add(CartItem(add, 1))
+            basket.cartItems.add(CartItem(productId, 1))
         }
     }
 
-    @PostMapping(value = ["cart"], params = ["update"])
+    @PostMapping("/cart")
     fun updateCart(cart: CartDto): CartDto {
         val user = SecurityContextHolder.getContext().authentication.principal as OidcUser
         val userId = user.userInfo.preferredUsername
@@ -52,7 +53,7 @@ class CartController(
         return newCart.toDto()
     }
 
-    @PostMapping(value = ["cart"], params = ["checkout"])
+    @PostMapping("/checkout")
     fun checkout(cart: CartDto): OrderDto {
         val user = SecurityContextHolder.getContext().authentication.principal as OidcUser
         val userId = user.userInfo.preferredUsername

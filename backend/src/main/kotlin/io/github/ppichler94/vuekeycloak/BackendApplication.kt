@@ -10,6 +10,8 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.invoke
+import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.stereotype.Component
 import org.springframework.web.context.request.WebRequest
@@ -36,6 +38,10 @@ internal class SecurityConfig {
             oauth2ResourceServer {
                 jwt {  }
             }
+            authorizeRequests {
+                authorize("/products/**", authenticated)
+                authorize("/cart/**", authenticated)
+            }
         }
 
         return http.build()
@@ -56,5 +62,15 @@ class MyCustomErrorAttributes() : DefaultErrorAttributes() {
 class WebConfig : WebMvcConfigurer {
     override fun addCorsMappings(registry: CorsRegistry) {
         registry.addMapping("/**").allowedOrigins("http://localhost:4040")
+    }
+}
+
+class UserManager {
+    companion object {
+        fun getUsername(): String {
+            val jwt = SecurityContextHolder.getContext().authentication.principal as Jwt
+            val claims = jwt.claims
+            return claims["preferred_username"] as String
+        }
     }
 }

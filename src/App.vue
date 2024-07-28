@@ -1,33 +1,35 @@
 <script setup lang="ts">
-import { RouterLink, RouterView } from 'vue-router'
-import LoginButton from './components/buttons/LoginButton.vue'
-import LogoutButton from './components/buttons/LogoutButton.vue'
+import { RouterView } from 'vue-router'
 import { useUserManager } from '@/stores/usermanager'
 import { storeToRefs } from 'pinia'
 
-const { authenticated } = storeToRefs(useUserManager())
+const { authenticated, roles } = storeToRefs(useUserManager())
+const { usermanager } = useUserManager()
+
 </script>
 
 <template>
-  <header class="flex">
-    <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="25" height="25" />
+  <el-container class="common-layout">
+  <el-header>
+    <el-menu mode="horizontal" :router="true" :default-active="$route.path">
+      <el-menu-item index="/products" :disabled="!authenticated">Products</el-menu-item>
+      <el-menu-item index="/orders" :disabled="!authenticated">Orders</el-menu-item>
+      <el-menu-item index="/cart" :disabled="!authenticated">Cart</el-menu-item>
+      <el-sub-menu index="management" :disabled="!roles.includes('admin')">
+        <template #title>Management</template>
+        <el-menu-item index="2-1">item one</el-menu-item>
+        <el-menu-item index="2-2">item two</el-menu-item>
+        <el-menu-item index="2-3">item three</el-menu-item>
+      </el-sub-menu>
+      <el-menu-item v-if="!authenticated" @click="usermanager.signinPopup()">Login</el-menu-item>
+      <el-menu-item v-if="authenticated" @click="usermanager.signoutPopup()">Logout</el-menu-item>
+    </el-menu>
+  </el-header>
 
-    <span class="title">Demo App</span>
-    <nav class="container bg-gray-300 space-x-2">
-      <RouterLink to="/products">Products</RouterLink>
-      <RouterLink to="/orders">Orders</RouterLink>
-      <RouterLink to="/cart">Cart</RouterLink>
-
-      <template v-if="!authenticated">
-        <LoginButton />
-      </template>
-      <template v-if="authenticated">
-        <LogoutButton />
-      </template>
-    </nav>
-  </header>
-
-  <RouterView />
+  <el-main>
+    <RouterView />
+  </el-main>
+  </el-container>
 </template>
 
 <style scoped>
