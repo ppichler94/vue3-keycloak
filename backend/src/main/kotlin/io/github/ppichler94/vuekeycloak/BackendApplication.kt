@@ -10,8 +10,10 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.invoke
+import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.oauth2.jwt.Jwt
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.stereotype.Component
 import org.springframework.web.context.request.WebRequest
@@ -45,6 +47,17 @@ internal class SecurityConfig {
         }
 
         return http.build()
+    }
+
+    @Bean
+    fun authenticationConverter(): JwtAuthenticationConverter {
+        val converter = JwtAuthenticationConverter()
+        converter.setJwtGrantedAuthoritiesConverter {
+            val realm_access = it.claims["realm_access"] as Map<String, String>
+            val roles = realm_access["roles"] as List<String>
+            roles.map { SimpleGrantedAuthority(it) }
+        }
+        return converter
     }
 }
 

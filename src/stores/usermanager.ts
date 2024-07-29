@@ -45,7 +45,11 @@ export const useUserManager = defineStore('usermanager', () => {
       })
     }
     user.value = u
-    void router.push(router.currentRoute.value)
+    if (u === undefined) {
+      void router.push({name: 'home'})
+    } else {
+      void router.push({name: router.currentRoute.value.name})
+    }
   }
 
   return {
